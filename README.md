@@ -1,5 +1,7 @@
 # connman-ncurses
 
+# This repository is for compatibility, switch to https://github.com/eurogiciel-oss/connman-json-client
+
 This project aim to provide a simple ncurses interface to control ConnMan through
 dbus. Wiki: https://github.com/eurogiciel-oss/connman-json-client/wiki
 
