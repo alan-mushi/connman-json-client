@@ -307,19 +307,6 @@ void __renderers_free_home_page(void)
 }
 
 /*
- * Return true if jobj has a Connected attribute set to true, false otherwise.
- * @param jobj A json object service dict
- */
-static bool tech_is_connected(struct json_object *jobj)
-{
-	struct json_object *jbool;
-
-	json_object_object_get_ex(jobj, "Connected", &jbool);
-
-	return ((jbool && json_object_get_boolean(jbool)) ? true : false);
-}
-
-/*
  * Create a field and fill the buffer with the string representation of val.
  * This field can be visited by the cursor, it also dynamicaly resize (in buffer
  * length).
@@ -785,9 +772,8 @@ void __renderers_free_services(void)
 }
 
 /*
- * Render the service configuration view or the services connection view
- * depending if the technology is connected or not. See renderers_services and
- * renderers_service_config for more information on those.
+ * Render the service configuration view, see renderers_services for more
+ * informations.
  * The context global variable is modified here.
  * @param jobj The following json object:
  {
@@ -797,7 +783,7 @@ void __renderers_free_services(void)
  */
 void __renderers_services(struct json_object *jobj)
 {
-	struct json_object *tech_array, *tech_dict, *serv_array;
+	struct json_object *tech_array, *serv_array;
 
 	json_object_object_get_ex(jobj, key_technology, &tech_array);
 	json_object_object_get_ex(jobj, key_services, &serv_array);
@@ -814,24 +800,9 @@ void __renderers_services(struct json_object *jobj)
 	if (tech_array == NULL || serv_array == NULL)
 		return;
 
-	tech_dict = json_object_array_get_idx(tech_array, 1);
 	nb_pages = 0;
-
-	if (tech_is_connected(tech_dict)) {
-		if (!serv_array || json_object_array_length(serv_array) == 0) {
-			main_menu = NULL;
-			return;
-		}
-
-		// propose modifications of service parameters
-		renderers_service_config(json_object_array_get_idx(serv_array, 0));
-		context.current_context = CONTEXT_SERVICE_CONFIG;
-		__renderers_services_config_paging();
-	} else {
-		// propose to connect to one service
-		renderers_services(serv_array);
-		context.current_context = CONTEXT_SERVICES;
-	}
+	renderers_services(serv_array);
+	context.current_context = CONTEXT_SERVICES;
 
 	wrefresh(win_body);
 }
